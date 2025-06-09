@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saudi-dashboard-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saudi-dashboard
+  template:
+    metadata:
+      labels:
+        app: saudi-dashboard
+    spec:
+      containers:
+      - name: saudi-dashboard
+        image: yasmina222/saudi-dashboard:v1
+        ports:
+        - containerPort: 8501
+        env:
+        - name: API_BASE
+          value: "http://saudi-api-service"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saudi-dashboard-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: saudi-dashboard
+  ports:
+  - port: 80
+    targetPort: 8501
