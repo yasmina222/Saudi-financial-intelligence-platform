@@ -319,9 +319,13 @@ with tab3:
             else:
                 st.info(f"No data available for term: {selected_term}")
 
+
 with tab4:
     st.header("Vision 2030 Projects")
     st.caption("Mega-project sentiment and status tracking")
+    
+    # Load Vision 2030 progress data
+    vision_progress = fetch_api_data("/vision2030/progress")  
     
     projects = ["neom", "red-sea", "qiddiya", "trojena", "diriyah"]
     
@@ -345,12 +349,23 @@ with tab4:
                         </div>
                         """, unsafe_allow_html=True)
                         
-                        # note about progress tracking
-                        st.caption("Progress tracking pending real data")
-
-# In src/dashboard/saudi_financial_dashboard.py
-
-# ... (keep all your existing code for tab1, tab2, tab3, and tab4) ...
+                        # Add progress bar
+                        progress = project_data.get('completion_percentage', 0)
+                        if progress > 0:
+                            st.progress(progress / 100)
+                            st.caption(f"📊 {progress}% Complete")
+                            
+                            # Add color-coded status
+                            if progress == 100:
+                                st.success("✅ Project Completed")
+                            elif progress >= 75:
+                                st.info("🚀 Final Phase")
+                            elif progress >= 50:
+                                st.warning("🏗️ Major Construction")
+                            else:
+                                st.caption("📋 Early Development")
+                        else:
+                            st.caption("📍 Planning Phase")
 
 with tab5:
     st.header("Arabic Market Sentiment Analysis")
