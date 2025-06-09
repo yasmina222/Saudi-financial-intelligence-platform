@@ -119,7 +119,7 @@ def load_vision_2030_progress():
     except (IOError, json.JSONDecodeError):
         return None
 
-# --- API Endpoints ---
+# API Endpoints 
 @app.get("/")
 def root():
     return {
@@ -166,7 +166,7 @@ def get_saudi_company_sentiment(company_name: str):
             detail=f"No sentiment data available for company: {company_name}. This indicates limited coverage in current news sources."
         )
     
-    # Get the most recent article's sentiment (or aggregate if needed)
+    # Get the most recent article's sentiment 
     # For now, return the first match
     article = found_articles[0]
     
@@ -405,7 +405,32 @@ def get_vision2030_project_info(project_name: str):
         implementation_status=implementation_status_text
     )
 
-# --- Arabic Analysis Endpoints ---
+@app.get("/vision2030/progress")
+def get_all_vision2030_progress():
+    """Get progress summary for all Vision 2030 projects"""
+    vision_progress_data = load_vision_2030_progress()
+    
+    if not vision_progress_data:
+        return {
+            "error": "No Vision 2030 progress data available",
+            "projects": {}
+        }
+    
+    formatted_progress = {}
+    for project, progress in vision_progress_data.items():
+        formatted_progress[project] = {
+            "name": project.replace('_', ' ').title(),
+            "progress": progress,
+            "status": "Completed" if progress == 100 else "In Progress" if progress > 0 else "Planning"
+        }
+    
+    return {
+        "total_projects": len(vision_progress_data),
+        "average_progress": sum(vision_progress_data.values()) / len(vision_progress_data) if vision_progress_data else 0,
+        "projects": formatted_progress
+    }
+
+#  Arabic Analysis Endpoints 
 def load_arabic_analysis_report():
     """Helper function to load the JSON report from the rule-based analyzer."""
     report_path = "data/processed/rule_based_arabic_analysis_report.json"
@@ -456,14 +481,14 @@ def get_arabic_market_summary():
         "top_mentioned_terms": top_entities
     }
 
-# --- Main execution ---
+#  Main execution 
 if __name__ == "__main__":
     import uvicorn
     print("Starting Saudi Financial Intelligence API...")
     print("Access API documentation at: http://localhost:8000/docs")
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-# Add this test endpoint temporarily
+# Add test temporarily
 @app.get("/test-normalization/{company_name}")
 def test_normalization(company_name: str):
     normalized = normalize_entity_name(company_name)
